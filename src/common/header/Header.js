@@ -21,7 +21,18 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Modal from 'react-modal';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import GridListTileBar from '@material-ui/core/GridListTileBar';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import InfoIcon from '@material-ui/icons/Info';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
 import './Header.css';
+import test from './Data.js';
 const TabContainer = function (props) {
     return (
         <Typography component="div" style={{ padding: 0, textAlign: 'center' }}>
@@ -67,13 +78,19 @@ const styles = theme => ({
         },
     },
     searchIcon: {
-        width: theme.spacing.unit * 9,
+        width: theme.spacing.unit * 4,
         height: '100%',
         position: 'absolute',
         pointerEvents: 'none',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    avatarButton: {
+        paddingTop: 3,
+        paddingRight: 12,
+        paddingBottom: 3,
+        paddingLeft: 6,
     },
     inputRoot: {
         color: 'inherit',
@@ -102,13 +119,25 @@ const styles = theme => ({
             display: 'none',
         },
     },
-    toolBar:{
+    toolBar: {
         display: 'flex',
         paddingTop: 2,
         paddingRight: 0,
         paddingBottom: 2,
         paddingLeft: 0,
-    }
+    },
+    media: {
+        
+        paddingTop: '1.25%', // 16:9,
+        
+      },
+      cardLayout: {
+        width:'20%',
+        height:'200px',
+        paddingTop: '2px', // 16:9,
+        
+      }
+    
 });
 
 class PrimarySearchAppBar extends React.Component {
@@ -134,7 +163,9 @@ class PrimarySearchAppBar extends React.Component {
             registerPasswordRequired: "disp-none",
             registerPassword: "",
             contactRequired: "disp-none",
-            contact: ""
+            contact: "",
+            resterauntList: [],
+            PartialList: []
         }
     }
 
@@ -212,7 +243,12 @@ class PrimarySearchAppBar extends React.Component {
     onProfileIconClickHandler = () => {
         this.setState({ displayMenu: "disp-block" });
     }
-    
+    //Get the list of restaurent
+    getRestList = () => {
+        console.log(test[0].restaurantName)
+
+    }
+
     render() {
         const { anchorEl, mobileMoreAnchorEl } = this.state;
         const { classes } = this.props;
@@ -250,55 +286,58 @@ class PrimarySearchAppBar extends React.Component {
         );
 
         return (
-            <div className="hBackground">
+            <div>
+                {/*This is the header part*/}
+                <div className="hBackground">
 
-                <AppBar position="static">
+                    <AppBar position="static">
 
-                    <Toolbar className="toolBar toolBarBack">
-                    <div className={classes.root}>
-                        <Grid container spacing={24} direction="row" justify="space-evenly" alignItems="flex-start">
-                            <Grid item xs={6} sm={3}>
-                                {/** Application Icon*/}
-                                <Fastfood className="searchIcon" />
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <div className={classes.search}>
-                                    <div className={classes.searchIcon}>
-                                        <SearchIcon />
-                                    </div>
-                                    <InputBase
-                                        placeholder="Search by Restaurant Name"
-                                        classes={{
-                                            root: classes.inputRoot,
-                                            input: classes.inputInput,
-                                        }}
-                                    />
-                                </div>
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <IconButton className={classes.menuButton} color="inherit" aria-label="Open drawer">
-                                    <MenuIcon />
-                                    <Typography className={classes.title} color="inherit" noWrap>
-                                        Categories
+                        <Toolbar className="toolBar toolBarBack">
+                            <div className={classes.root}>
+                                <Grid container direction="row" justify="space-evenly" alignItems="flex-start">
+                                    <Grid>
+                                        {/** Application Icon*/}
+                                        <Fastfood className="searchIcon" />
+                                    </Grid>
+                                    <Grid>
+                                        <div className={classes.search}>
+                                            <div className={classes.searchIcon}>
+                                                <SearchIcon />
+                                            </div>
+                                            <InputBase
+                                                placeholder="Search by Restaurant Name"
+                                                classes={{
+                                                    root: classes.inputRoot,
+                                                    input: classes.inputInput,
+                                                }}
+                                            />
+                                        </div>
+                                    </Grid>
+                                    <Grid>
+                                        <IconButton className={classes.menuButton} color="inherit" aria-label="Open drawer">
+                                            <MenuIcon />
+                                            <Typography className={classes.title} color="inherit" noWrap>
+                                                Categories
                             </Typography>
-                                </IconButton>
+                                        </IconButton>
 
-                            </Grid>
-                            <Grid item xs={6} sm={3}>
-                                <div className="profile-picture">
-                                    {/** --Invoke the Login Modal along with sign up*/}
-                                    <Button variant="contained" color="default" onClick={this.handlerForShowingModals}>
-                                        <AccountCircle /> LOGIN
+                                    </Grid>
+                                    <Grid>
+                                        <div className="profile-picture">
+                                            {/** --Invoke the Login Modal along with sign up*/}
+                                            <Button className={classes.avatarButton} variant="contained" color="default" onClick={this.handlerForShowingModals}>
+                                                <AccountCircle />
+                                                Login
                                     </Button>
-                                </div>
-                            </Grid>
-                        </Grid>
-                        </div>
-                    </Toolbar>
-                </AppBar>
-                {renderMenu}
-                {renderMobileMenu}
-                <Modal
+                                        </div>
+                                    </Grid>
+                                </Grid>
+                            </div>
+                        </Toolbar>
+                    </AppBar>
+                    {renderMenu}
+                    {renderMobileMenu}
+                    <Modal
                         ariaHideApp={false}
                         isOpen={this.state.isModalOpen}
                         contentLabel="Login"
@@ -390,7 +429,53 @@ class PrimarySearchAppBar extends React.Component {
                             </TabContainer>
                         }
                     </Modal>
+
+
+
+                </div>
+                {/** Render the resteraunt list*/}
+                <div >
+                    <GridList cols={4} className={classes.gridList}>
+
+                        {test.map(tile => (
+                            <div className={classes.cardLayout} key={tile.id}>
+                            <Card>
+                                <CardActionArea>
+                                    <CardMedia
+                                        component="img"
+                                        alt={tile.restaurantName}
+                                        //className={classes.media}
+                                        height="60"
+                                        image={tile.photoUrl}
+                                        title={tile.restaurantName}
+                                    />
+                                <CardContent>
+                                        <Typography gutterBottom component="h2">
+                                            {tile.restaurantName}
+                                            <Typography>
+                                                Categories: {tile.categories}
+                                            </Typography>
+                                        </Typography>
+
+                                    </CardContent>
+                                </CardActionArea>
+                                <CardActions>
+                                    <Button size="small" color="primary">
+                                        Share
+        </Button>
+                                    <Button size="small" color="primary">
+                                        Learn More
+        </Button>
+                                </CardActions>
+                            </Card>
+                            </div>
+                        ))}
+                    </GridList>
+
+
+                </div>
             </div>
+
         );
     }
 }
