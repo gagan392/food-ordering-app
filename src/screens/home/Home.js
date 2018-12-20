@@ -77,6 +77,7 @@ class Home extends Component {
                                         <CardActions>
                                         <div >
                                                 <span className="userRating" style={{ paddingLeft: '5px' }}><FontAwesome name='star' /></span>
+                                                {/*Font Awesome didnt work*/}
                                                 <span className="userRating" style={{ paddingLeft: '5px' }}>{restautant.userRating} ({restautant.numberUsersRated})</span>
                                                 <span style={{ float: 'right' }}><i class="fa fa-inr" aria-hidden="true"></i>{restautant.avgPrice} for two</span>
                                             </div>
