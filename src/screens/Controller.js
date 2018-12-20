@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import Login from "../screens/login/Login";
+import { BrowserRouter as Router } from "react-router-dom";
+import Routes from "../route";
 
 
 /**
@@ -9,17 +9,12 @@ import Login from "../screens/login/Login";
  * @extends {Component}
  */
 class Controller extends Component {
-  
 
   render() {
     return (
       <Router>
         <div className="main-container">
-          <Route
-            exact
-            path="/"
-            render={props => <Login {...props}/>}
-          />
+          <Routes />
         </div>
       </Router>
     );
