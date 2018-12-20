@@ -21,18 +21,10 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Modal from 'react-modal';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
-import GridListTileBar from '@material-ui/core/GridListTileBar';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import InfoIcon from '@material-ui/icons/Info';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
 import './Header.css';
-import test from './Data.js';
+
+import CustomSnackBar from "../../common/SnackBar/SnackBar";
+
 const TabContainer = function (props) {
     return (
         <Typography component="div" style={{ padding: 0, textAlign: 'center' }}>
@@ -84,7 +76,7 @@ const styles = theme => ({
         pointerEvents: 'none',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+		justifyContent: 'center'
     },
     avatarButton: {
         paddingTop: 3,
@@ -127,17 +119,16 @@ const styles = theme => ({
         paddingLeft: 0,
     },
     media: {
-        
+
         paddingTop: '1.25%', // 16:9,
-        
+
       },
       cardLayout: {
         width:'20%',
         height:'200px',
         paddingTop: '2px', // 16:9,
-        
-      }
-    
+
+	  }
 });
 
 class PrimarySearchAppBar extends React.Component {
@@ -145,8 +136,9 @@ class PrimarySearchAppBar extends React.Component {
         super();
         this.state = {
             isValidUserLoggedIn: false,
-            userData: "",
-            anchorEl: null,
+            userData: {},
+			anchorEl: null,
+			accountAnchorEl: null,
             isModalOpen: false,//Modal State
             value: 1,//Tab Value 1 is for login and 0 for SignUp
             //Login page
@@ -158,14 +150,20 @@ class PrimarySearchAppBar extends React.Component {
             firstnameRequired: "disp-none",
             firstname: "",
             lastname: "",
-            emailRequired: "disp-none",
+			emailRequired: "disp-none",
+			emailRequiredMsg: 'requierd',
             email: "",
-            registerPasswordRequired: "disp-none",
+			registerPasswordRequired: "disp-none",
+			registerPasswordRequiredMsg: "required",
             registerPassword: "",
-            contactRequired: "disp-none",
+			contactRequired: "disp-none",
+			contactRequiredMsg: "required",
             contact: "",
             resterauntList: [],
-            PartialList: []
+			PartialList: [],
+			showSnackBar: false,
+			snackBarMessage: "",
+			loggedIn: sessionStorage.getItem("access-token") == null ? false : true
         }
     }
 
@@ -202,10 +200,13 @@ class PrimarySearchAppBar extends React.Component {
             firstname: "",
             lastname: "",
             emailRequired: "dispNone",
-            email: "",
-            registerPasswordRequired: "dispNone",
+			email: "",
+			emailRequiredMsg: "required",
+			registerPasswordRequired: "dispNone",
+			registerPasswordRequiredMsg: "required",
             registerPassword: "",
-            contactRequired: "dispNone",
+			contactRequired: "dispNone",
+			contactRequiredMsg: "required",
             contact: ""
         });
         this.state.loginContact === "" ? this.setState({ loginContactRequired: "disp-block" }) : this.setState({ loginContactRequired: "disp-none" });
@@ -243,17 +244,93 @@ class PrimarySearchAppBar extends React.Component {
     onProfileIconClickHandler = () => {
         this.setState({ displayMenu: "disp-block" });
     }
-    //Get the list of restaurent
-    getRestList = () => {
-        console.log(test[0].restaurantName)
 
-    }
+	loginClickHandler = async() => {
+		const currState = this.state;
+		currState.loginContactRequired = this.state.loginContact === "" ? "disp-block" : "disp-none";
+		currState.loginpasswordRequired = this.state.loginpassword === "" ? "disp-block" : "disp-none";
+		this.setState(currState);
+		if (currState.loginContactRequired === "disp-block" || currState.loginpasswordRequired === "disp-block") return;
+
+
+		const { apiClient } = this.props;
+		const res = await apiClient.login(this.state.loginContact, this.state.loginPassword);
+		sessionStorage.setItem("access-token", res.headers["access-token"]);
+		this.setState({
+			...currState,
+			userData: res,
+			loggedIn: true,
+			isModalOpen: false,
+			showSnackBar: true,
+			snackBarMessage: "Logged in successfully!",
+		});
+	}
+
+	signupClickHandler = async() => {
+		const currState = this.state;
+		currState.firstnameRequired = this.state.firstname === "" ? "disp-block" : "disp-none";
+
+		let regex = /^[\w!#$%&’*+/=?`{|}~^-]+(?:\.[\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}$/;
+		currState.emailRequired = this.state.email === "" || !regex.test(this.state.email) ? "disp-block" : "disp-none";
+		this.state.emailRequiredMsg = this.state.email === "" ? 'required': currState.emailRequired ? 'Invalid Email' : "";
+
+		const invalidPassowrd = this.state.registerPassword.length < 8 || this.state.registerPassword.includes('#@$%&*!^') || this.state.registerPassword === this.state.registerPassword.toLowerCase() || !(this.state.registerPassword.toString().match(".*\\d+.*"));
+		console.log(" invalidPassowrd ", invalidPassowrd);
+
+		currState.registerPasswordRequired = this.state.registerPassword === "" || invalidPassowrd ? "disp-block" : "disp-none";
+
+		this.state.registerPasswordRequiredMsg = this.state.registerPassword === "" ? 'required': invalidPassowrd ? 'Password must contain at least one capital letter, one small letter, one number, and one special character' : "";
+
+		regex = /^[0-9]{10}$/;
+		const invalidContact = this.state.contact.toString().length < 10 || !regex.test(this.state.contact.toString());
+		currState.contactRequired = this.state.contact === "" || invalidContact ? "disp-block" : "disp-none";
+		currState.contactRequiredMsg = this.state.contact === "" ? "required" : invalidContact ? "Contact No. must contain only numbers and must be 10 digits long" : "";
+
+
+		this.setState(currState);
+		if (currState.firstnameRequired === "disp-block"
+		|| currState.emailRequired === "disp-block"
+		|| currState.registerPasswordRequired === "disp-block"
+		|| currState.contactRequired === "disp-block") return;
+
+		const { apiClient } = this.props;
+		const res = await apiClient.sigup(
+			this.state.firstname,
+			this.state.lastname,
+			this.state.email,
+			this.state.contact,
+			this.state.registerPassword
+		);
+		/**
+		 * TODO:
+		 * “Registered successfully! Please login now!”
+		 * “This contact number is already registered! Try other contact number.”
+		 */
+		this.setState({
+			isModalOpen: false
+		})
+	}
+
+	snackBarCloseHandler = () => {
+		this.setState({ showSnackBar: false });
+	}
+
+	handleAccountMenuClick = event => {
+		this.setState({ accountAnchorEl: event.currentTarget });
+	  };
+
+	handleAccountMenuClose = () => {
+		this.setState({ accountAnchorEl: null });
+	};
 
     render() {
-        const { anchorEl, mobileMoreAnchorEl } = this.state;
+        const { anchorEl, mobileMoreAnchorEl, accountAnchorEl } = this.state;
         const { classes } = this.props;
         const isMenuOpen = Boolean(anchorEl);
-        const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+		const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+		// TODO: header styling
+
+		console.log(" user ", this.state.userData);
 
         const renderMenu = (
             <Menu
@@ -291,10 +368,9 @@ class PrimarySearchAppBar extends React.Component {
                 <div className="hBackground">
 
                     <AppBar position="static">
-
                         <Toolbar className="toolBar toolBarBack">
                             <div className={classes.root}>
-                                <Grid container direction="row" justify="space-evenly" alignItems="flex-start">
+                                <Grid container direction="row" justify="space-between" alignItems="flex-start">
                                     <Grid>
                                         {/** Application Icon*/}
                                         <Fastfood className="searchIcon" />
@@ -325,10 +401,30 @@ class PrimarySearchAppBar extends React.Component {
                                     <Grid>
                                         <div className="profile-picture">
                                             {/** --Invoke the Login Modal along with sign up*/}
-                                            <Button className={classes.avatarButton} variant="contained" color="default" onClick={this.handlerForShowingModals}>
+                                            {this.state.isValidUserLoggedIn ? <Button className={classes.avatarButton} variant="contained" color="default" onClick={this.handlerForShowingModals}>
                                                 <AccountCircle />
                                                 Login
-                                    </Button>
+									</Button> :
+									<div>
+									<AccountCircle />
+									<Button
+									  aria-owns={accountAnchorEl ? 'simple-menu' : undefined}
+									  aria-haspopup="true"
+									  onClick={this.handleAccountMenuClick}
+									>
+									  {this.state.userData.firstName}
+									</Button>
+									<Menu
+									  id="simple-menu"
+									  anchorEl={accountAnchorEl}
+									  open={Boolean(accountAnchorEl)}
+									  onClose={this.handleAccountMenuClose}
+									>
+									  <MenuItem onClick={this.handleAccountMenuClose}>Profile</MenuItem>
+									  <MenuItem onClick={this.handleAccountMenuClose}>Logout</MenuItem>
+									</Menu>
+								  </div>
+								}
                                         </div>
                                     </Grid>
                                 </Grid>
@@ -368,9 +464,7 @@ class PrimarySearchAppBar extends React.Component {
                                 <br /><br />
                                 {this.state.isValidUserLoggedIn === true &&
                                     <FormControl>
-                                        <span className="successText">
-                                            Logged in successfully!
-                                    </span>
+                                        <span className="red">Invalid Contact</span>
                                     </FormControl>
                                 }
                                 <br /><br />
@@ -397,15 +491,15 @@ class PrimarySearchAppBar extends React.Component {
                                     <InputLabel htmlFor="email">Email</InputLabel>
                                     <Input id="email" type="text" email={this.state.email} onChange={this.emailChangeHandler} />
                                     <FormHelperText className={this.state.emailRequired}>
-                                        <span className="red">required</span>
+                                        <span className="red">{this.state.emailRequiredMsg}</span>
                                     </FormHelperText>
                                 </FormControl>
                                 <br /><br />
                                 <FormControl required>
                                     <InputLabel htmlFor="registerPassword">Password</InputLabel>
-                                    <Input id="registerPassword" type="password" registerpassword={this.state.registerPassword} onChange={this.inputRegisterPasswordChangeHandler} />
+                                    <Input id="registerPassword" type="password" registerpassword={this.state.registerPassword} onChange={this.registerPasswordChangeHandler} />
                                     <FormHelperText className={this.state.registerPasswordRequired}>
-                                        <span className="red">required</span>
+                                        <span className="red">{this.state.registerPasswordRequiredMsg}</span>
                                     </FormHelperText>
                                 </FormControl>
                                 <br /><br />
@@ -413,7 +507,7 @@ class PrimarySearchAppBar extends React.Component {
                                     <InputLabel htmlFor="contact">Contact No.</InputLabel>
                                     <Input id="contact" type="text" contact={this.state.contact} onChange={this.contactChangeHandler} />
                                     <FormHelperText className={this.state.contactRequired}>
-                                        <span className="red">required</span>
+                                        <span className="red">{this.state.contactRequiredMsg}</span>
                                     </FormHelperText>
                                 </FormControl>
                                 <br /><br />
@@ -429,52 +523,15 @@ class PrimarySearchAppBar extends React.Component {
                             </TabContainer>
                         }
                     </Modal>
-
-
-
                 </div>
-                {/** Render the resteraunt list*/}
-                <div >
-                    <GridList cols={4} className={classes.gridList}>
-
-                        {test.map(tile => (
-                            <div className={classes.cardLayout} key={tile.id}>
-                            <Card>
-                                <CardActionArea>
-                                    <CardMedia
-                                        component="img"
-                                        alt={tile.restaurantName}
-                                        //className={classes.media}
-                                        height="60"
-                                        image={tile.photoUrl}
-                                        title={tile.restaurantName}
-                                    />
-                                <CardContent>
-                                        <Typography gutterBottom component="h2">
-                                            {tile.restaurantName}
-                                            <Typography>
-                                                Categories: {tile.categories}
-                                            </Typography>
-                                        </Typography>
-
-                                    </CardContent>
-                                </CardActionArea>
-                                <CardActions>
-                                    <Button size="small" color="primary">
-                                        Share
-        </Button>
-                                    <Button size="small" color="primary">
-                                        Learn More
-        </Button>
-                                </CardActions>
-                            </Card>
-                            </div>
-                        ))}
-                    </GridList>
-
-
-                </div>
-            </div>
+				<CustomSnackBar
+					vertical="bottom"
+					horizontal="left"
+					open={this.state.showSnackBar}
+					onClose={this.snackBarCloseHandler}
+					message={this.state.snackBarMessage}
+				/>
+			</div>
 
         );
     }
