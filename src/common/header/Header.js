@@ -135,7 +135,7 @@ class PrimarySearchAppBar extends React.Component {
     constructor() {
         super();
         this.state = {
-            isValidUserLoggedIn: false,
+            invalidLoginMsg: "",
             userData: {},
 			anchorEl: null,
 			accountAnchorEl: null,
@@ -165,7 +165,13 @@ class PrimarySearchAppBar extends React.Component {
 			snackBarMessage: "",
 			loggedIn: sessionStorage.getItem("access-token") == null ? false : true
         }
-    }
+	}
+
+	componentDidMount = async() => {
+		this.setState({
+			loggedIn: sessionStorage.getItem("access-token") == null ? false : true
+		})
+	}
 
     handleProfileMenuOpen = event => {
         this.setState({ anchorEl: event.currentTarget });
@@ -254,16 +260,33 @@ class PrimarySearchAppBar extends React.Component {
 
 
 		const { apiClient } = this.props;
-		const res = await apiClient.login(this.state.loginContact, this.state.loginPassword);
-		sessionStorage.setItem("access-token", res.headers["access-token"]);
-		this.setState({
-			...currState,
-			userData: res,
-			loggedIn: true,
-			isModalOpen: false,
-			showSnackBar: true,
-			snackBarMessage: "Logged in successfully!",
-		});
+		let res = "";
+		try {
+			res = await apiClient.login(this.state.loginContact, this.state.loginPassword);
+			if (typeof res.data !== 'string') {
+				sessionStorage.setItem("access-token", res.headers["access-token"]);
+				this.setState({
+					...currState,
+					userData: res.data,
+					loggedIn: true,
+					invalidLoginMsg: "",
+					isModalOpen: false,
+					showSnackBar: true,
+					snackBarMessage: "Logged in successfully!",
+				});
+			} else {
+				this.setState({
+					...currState,
+					invalidLoginMsg: res.data
+				});
+			}
+		} catch (error) {
+			console.error("login failed error --> ", error.response);
+			this.setState({
+				...currState,
+				invalidLoginMsg: res
+			});
+		}
 	}
 
 	signupClickHandler = async() => {
@@ -333,8 +356,6 @@ class PrimarySearchAppBar extends React.Component {
         const isMenuOpen = Boolean(anchorEl);
 		const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 		// TODO: header styling
-
-		console.log(" user ", this.state.userData);
 
         const renderMenu = (
             <Menu
@@ -406,7 +427,7 @@ class PrimarySearchAppBar extends React.Component {
                                     <Grid>
                                         <div className="profile-picture">
                                             {/** --Invoke the Login Modal along with sign up*/}
-                                            {this.state.isValidUserLoggedIn ? <Button className={classes.avatarButton} variant="contained" color="default" onClick={this.handlerForShowingModals}>
+                                            {!this.state.loggedIn ? <Button className={classes.avatarButton} variant="contained" color="default" onClick={this.handlerForShowingModals}>
                                                 <AccountCircle />
                                                 Login
 									</Button> :
@@ -467,9 +488,9 @@ class PrimarySearchAppBar extends React.Component {
                                     </FormHelperText>
                                 </FormControl>
                                 <br /><br />
-                                {this.state.isValidUserLoggedIn === true &&
+                                {this.state.invalidLoginMsg !== "" &&
                                     <FormControl>
-                                        <span className="red">Invalid Contact</span>
+                                        <span className="red">{this.state.invalidLoginMsg}</span>
                                     </FormControl>
                                 }
                                 <br /><br />

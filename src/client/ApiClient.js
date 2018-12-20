@@ -46,7 +46,7 @@ ApiClient.prototype.login = (username, password) => {
 		.then(response => {
 			return response;
 		}).catch((error) => {
-			throw error;
+			return error.response;
 		});
 }
 
