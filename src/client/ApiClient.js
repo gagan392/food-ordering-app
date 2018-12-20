@@ -1,10 +1,10 @@
 const axios = require('axios');
-axios.defaults.baseURL = 'http://localhost:8080/api';
+const baseURL = 'http://localhost:8080/api';
 
 function ApiClient() {}
 
 ApiClient.prototype.getAllRestaurants = () => {
-	return axios.get(`/restaurant`, {
+	return axios.get(`${baseURL}/restaurant`, {
 			headers: {
 				"Accept": "application/json",
 				"content-type": "application/json"
@@ -18,7 +18,21 @@ ApiClient.prototype.getAllRestaurants = () => {
 }
 
 ApiClient.prototype.getRestauratsByName = (restaurantName) => {
-	return axios.get(`/restaurant/name/${restaurantName}`, {
+	return axios.get(`${baseURL}/restaurant/name/${restaurantName}`, {
+			headers: {
+				"Accept": "application/json",
+				"content-type": "application/json"
+			}
+		})
+		.then(response => {
+			return response && response.data;
+		}).catch((error) => {
+			throw error;
+		});
+}
+
+ApiClient.prototype.getRestauratsById = (restaurantId) => {
+	return axios.get(`${baseURL}/restaurant/${restaurantId}`, {
 			headers: {
 				"Accept": "application/json",
 				"content-type": "application/json"
@@ -36,7 +50,7 @@ ApiClient.prototype.login = (username, password) => {
 		'contactNumber': username,
 		'password': password
 	};
-	return axios.post('/user/login', null, {
+	return axios.post(`${baseURL}/user/login`, null, {
 			params,
 			headers: {
 				"Accept": "application/json",
@@ -54,7 +68,7 @@ ApiClient.prototype.signup = (firstName, lastName, email, contactNumber, passwor
 	const params = {
 		firstName, lastName, email, contactNumber, password
 	};
-	return axios.post('/user/signup', null, {
+	return axios.post(`${baseURL}/user/signup`, null, {
 			params,
 			headers: {
 				"Accept": "application/json",
@@ -62,7 +76,6 @@ ApiClient.prototype.signup = (firstName, lastName, email, contactNumber, passwor
 			}
 		})
 		.then(response => {
-			console.log(" signup response --> ", response);
 			return response;
 		}).catch((error) => {
 			throw error;

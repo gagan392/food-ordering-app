@@ -1,0 +1,31 @@
+.restImg{
+    height: 15rem;
+    width: 15rem;
+    float: left;
+    padding-right: 5rem;
+}
+
+.details-header-bg {
+	background-color: #80808047;
+	padding: 1rem;
+}
+
+.menu-cart-items{
+    padding: 50px;
+    display: flex;
+    flex-direction: row;
+	align-items: top;
+	float: right;
+}
+
+.menu-items{
+    width: 1000px;
+}
+
+.category-name{
+    text-transform: uppercase;
+}
+
+.veg-item-color{
+ color: green;
+}

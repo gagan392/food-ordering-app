@@ -129,7 +129,10 @@ const styles = theme => ({
         height:'200px',
         paddingTop: '2px', // 16:9,
 
-	  }
+	  },
+	  hide: {
+		  display: 'hidden'
+	  },
 });
 
 class PrimarySearchAppBar extends React.Component {
@@ -366,7 +369,7 @@ class PrimarySearchAppBar extends React.Component {
 
     render() {
         const { anchorEl, mobileMoreAnchorEl, accountAnchorEl } = this.state;
-        const { classes } = this.props;
+        const { classes, showSearchBox, showCategories } = this.props;
         const isMenuOpen = Boolean(anchorEl);
 		const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 		// TODO: header styling
@@ -414,7 +417,7 @@ class PrimarySearchAppBar extends React.Component {
                                         {/** Application Icon*/}
                                         <Fastfood className="searchIcon" />
                                     </Grid>
-                                    <Grid>
+                                    <Grid className={showSearchBox ? classes.hide : "" }>
                                         <div className={classes.search}>
                                             <div className={classes.searchIcon}>
                                                 <SearchIcon />
@@ -429,7 +432,7 @@ class PrimarySearchAppBar extends React.Component {
                                             />
                                         </div>
                                     </Grid>
-                                    <Grid>
+                                    <Grid className={showCategories ? classes.hide : "" }>
                                         <IconButton className={classes.menuButton} color="inherit" aria-label="Open drawer">
                                             <MenuIcon />
                                             <Typography className={classes.title} color="inherit" noWrap>

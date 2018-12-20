@@ -13,14 +13,12 @@ const styles = theme => ({
         height:'auto',
         paddingTop: '10px', // 16:9,
         paddingLeft: '12px',
-        
       },
       gridItem: {
         width:'100%',
         height:'300px',
         paddingTop: '15px', // 16:9,
         paddingLeft: '15px',
-        
 	  },
     });
 
@@ -48,6 +46,12 @@ class Home extends Component {
 		})
 	}
 
+	navigateToRestaurantDetails = restaurant => {
+		this.props.history.push({
+			pathname: `/restaurant/${restaurant.id}`,
+		});
+	}
+
     render() {
         const { classes, apiClient } = this.props;
         const { restaurants } = this.state;
@@ -61,7 +65,7 @@ class Home extends Component {
                         <GridList cellHeight={"auto"} cols={4} className={classes.gridList}>
                             {restaurants && restaurants.length > 0 && restaurants.map(restautant => (
                                 <div className={classes.gridItem} key={restautant.id}>
-                                    <Card>
+                                    <Card onClick={() => this.navigateToRestaurantDetails(restautant)}>
                                         <CardActionArea>
                                             <CardMedia
                                                 component="img"
