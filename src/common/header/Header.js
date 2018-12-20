@@ -323,6 +323,10 @@ class PrimarySearchAppBar extends React.Component {
 		this.setState({ accountAnchorEl: null });
 	};
 
+	searchHandler = e => {
+		this.props.restaurantSearchHandler(e.target.value);
+	}
+
     render() {
         const { anchorEl, mobileMoreAnchorEl, accountAnchorEl } = this.state;
         const { classes } = this.props;
@@ -385,7 +389,8 @@ class PrimarySearchAppBar extends React.Component {
                                                 classes={{
                                                     root: classes.inputRoot,
                                                     input: classes.inputInput,
-                                                }}
+												}}
+												onChange={this.searchHandler}
                                             />
                                         </div>
                                     </Grid>

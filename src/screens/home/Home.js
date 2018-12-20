@@ -25,12 +25,20 @@ class Home extends Component {
 		})
 	}
 
+	getRestauratsByName = async restaurantName => {
+		const { apiClient } = this.props;
+		const restaurants = await apiClient.getRestauratsByName(restaurantName);
+		this.setState({
+			restaurants
+		})
+	}
+
 	render() {
 		const {classes, apiClient} = this.props;
 		const { restaurants } = this.state;
 		return (
 			<div>
-				<Header apiClient={apiClient} />
+				<Header apiClient={apiClient} restaurantSearchHandler={this.getRestauratsByName}/>
 				<GridList cols={4} className={classes.gridList}>
                         {restaurants && restaurants.length > 0 && restaurants.map(restautant => (
                             <div className={classes.cardLayout} key={restautant.id}>

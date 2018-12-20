@@ -17,6 +17,20 @@ ApiClient.prototype.getAllRestaurants = () => {
 		});
 }
 
+ApiClient.prototype.getRestauratsByName = (restaurantName) => {
+	return axios.get(`/restaurant/name/${restaurantName}`, {
+			headers: {
+				"Accept": "application/json",
+				"content-type": "application/json"
+			}
+		})
+		.then(response => {
+			return response && response.data;
+		}).catch((error) => {
+			throw error;
+		});
+}
+
 ApiClient.prototype.login = (username, password) => {
 	const params = {
 		'contactNumber': username,
@@ -30,7 +44,6 @@ ApiClient.prototype.login = (username, password) => {
 			}
 		})
 		.then(response => {
-			console.log(" login response --> ", response);
 			return response;
 		}).catch((error) => {
 			throw error;
