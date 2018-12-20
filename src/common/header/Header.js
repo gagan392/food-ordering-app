@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from "react-router";
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -350,6 +351,19 @@ class PrimarySearchAppBar extends React.Component {
 		this.props.restaurantSearchHandler(e.target.value);
 	}
 
+	handleProfileMenu = () => {
+		this.props.history.push({
+			pathname: '/profile',
+		});
+	}
+
+	handleLogoutMenu = () => {
+		sessionStorage.removeItem("access-token");
+		this.props.history.push({
+			pathname: '/',
+		});
+	}
+
     render() {
         const { anchorEl, mobileMoreAnchorEl, accountAnchorEl } = this.state;
         const { classes } = this.props;
@@ -446,8 +460,8 @@ class PrimarySearchAppBar extends React.Component {
 									  open={Boolean(accountAnchorEl)}
 									  onClose={this.handleAccountMenuClose}
 									>
-									  <MenuItem onClick={this.handleAccountMenuClose}>Profile</MenuItem>
-									  <MenuItem onClick={this.handleAccountMenuClose}>Logout</MenuItem>
+									  <MenuItem onClick={this.handleProfileMenu}>Profile</MenuItem>
+									  <MenuItem onClick={this.handleLogoutMenu}>Logout</MenuItem>
 									</Menu>
 								  </div>
 								}
@@ -567,4 +581,4 @@ PrimarySearchAppBar.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(PrimarySearchAppBar);
+export default withRouter(withStyles(styles)(PrimarySearchAppBar));
