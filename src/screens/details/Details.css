@@ -1,0 +1,23 @@
+.restImg{
+    height: 284px;
+    width: 284px;
+}
+
+.menu-cart-items{
+    padding: 50px;
+    display: flex;
+    flex-direction: row;
+    align-items: top;
+}
+
+.menu-items{
+    width: 1000px;
+}
+
+.category-name{
+    text-transform: uppercase;
+}
+
+.veg-item-color{
+ color: green;
+}
